@@ -1,0 +1,32 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const apps = (await getCollection('apps')).sort((a, b) => a.data.order - b.data.order);
+---
+<BaseLayout title="Apps — Christoph Pageler">
+  <h1 class="page-title">Apps</h1>
+  <p class="lede">Each one solves a single thing that annoyed me. Built in SwiftUI, no tracking, no forced subscription.</p>
+
+  <div class="app-list">
+    {apps.map((app) => (
+      app.data.status === 'released' ? (
+        <a class="app-card" href={`/apps/${app.data.slug}`}>
+          <span class="icon">{app.data.name.charAt(0)}</span>
+          <span>
+            <b>{app.data.name}</b>
+            <span>{app.data.tagline}</span>
+          </span>
+        </a>
+      ) : (
+        <div class="app-card">
+          <span class="icon" style="color:var(--idle)">{app.data.name.charAt(0)}</span>
+          <span>
+            <b>{app.data.name}</b>
+            <span>Not finished yet. It will show up here when it is.</span>
+          </span>
+        </div>
+      )
+    ))}
+  </div>
+</BaseLayout>

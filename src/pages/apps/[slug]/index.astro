@@ -1,0 +1,56 @@
+---
+import { getCollection, render } from 'astro:content';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+
+export async function getStaticPaths() {
+  const apps = await getCollection('apps');
+  return apps.map((app) => ({
+    params: { slug: app.data.slug },
+    props: { app },
+  }));
+}
+
+const { app } = Astro.props;
+const { Content } = await render(app);
+
+const versionDate = app.data.releaseDate.toLocaleDateString('en-US', {
+  month: 'long',
+  year: 'numeric',
+});
+---
+<BaseLayout
+  title={`${app.data.name} — Christoph Pageler`}
+  footerThird={{ label: `${app.data.name} privacy policy`, href: `/apps/${app.data.slug}/privacy` }}
+>
+  <div class="app-head">
+    <span class="icon">{app.data.name.charAt(0)}</span>
+    <div>
+      <h1>{app.data.name}</h1>
+      <p>{app.data.tagline}</p>
+    </div>
+  </div>
+
+  <p class="actions">
+    <a href={app.data.appStoreUrl}>Download on the App Store</a>
+    <a href={`/apps/${app.data.slug}/privacy`}>Privacy policy</a>
+    <a href="/contact">Support</a>
+  </p>
+
+  <div class="block">
+    <h2>what it does</h2>
+    <Content />
+  </div>
+
+  <div class="block">
+    <h2>details</h2>
+    <div class="rows plain">
+      <div><span>Platform</span><span class="val">{app.data.platforms.join(', ')}</span></div>
+      <div><span>Requires</span><span class="val">{app.data.minimumOS} or later</span></div>
+      <div><span>Price</span><span class="val">{app.data.price}</span></div>
+      <div><span>Tracking</span><span class="val">None</span></div>
+      <div><span>Latest version</span><span class="val">{app.data.version} — {versionDate}</span></div>
+    </div>
+  </div>
+
+  <a class="back" href="/apps">All apps</a>
+</BaseLayout>

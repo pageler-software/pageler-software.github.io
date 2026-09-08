@@ -1,0 +1,29 @@
+---
+import { getCollection, getEntry, render } from 'astro:content';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+
+export async function getStaticPaths() {
+  const apps = await getCollection('apps');
+  return apps.map((app) => ({
+    params: { slug: app.data.slug },
+    props: { app },
+  }));
+}
+
+const { app } = Astro.props;
+const privacy = await getEntry('appPrivacy', `${app.data.slug}/privacy`);
+if (!privacy) {
+  throw new Error(`Missing privacy.md for app "${app.data.slug}"`);
+}
+const { Content } = await render(privacy);
+---
+<BaseLayout title={`Privacy policy — ${app.data.name} — Christoph Pageler`}>
+  <h1 class="page-title">{privacy.data.title ?? `Privacy policy — ${app.data.name}`}</h1>
+  <p class="updated">Last updated: {privacy.data.updated} · applies to version {privacy.data.appliesFrom} and later</p>
+
+  <div class="prose">
+    <Content />
+  </div>
+
+  <a class="back" href={`/apps/${app.data.slug}`}>Back to {app.data.name}</a>
+</BaseLayout>
